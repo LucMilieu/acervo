@@ -3,7 +3,7 @@
  * Campos novos também são descritos nas observações para servidores que ignoram colunas novas.
  * Leia LEIA-ME.md antes de publicar; a confirmação de idempotência pertence ao servidor.
  */
-const VERSION='2026-10-15.2';
+const VERSION='2026-10-15.4';
 const DEF={Coletores:['Marcos de Freitas Mortara','Marcio de Melo Leodegario','Lucas Gonçalves Ferreira'],Origem:['Silvestre','Cultivada de origem silvestre','Origem de cultivo','Desconhecida'],'Hábito':['Epífita','Rupícola','Terrícola','Hemiepífita','Outro'],'Material coletado':['Planta inteira','Muda','Semente','Estaca','Broto (keiki)','Outro'],'Local no JBM':['Viveiro de plantas','Estufa bromélias','Estufa aráceas','Outro'],Habitat:['Floresta Ombrófila Densa','Floresta Ombrófila Mista','Floresta Estacional Semidecidual','Restinga','Campo de altitude / rupestre','Afloramento rochoso','Mata ciliar','Borda de mata','Área antropizada','Outro'],'Tipo de evento':['Floração','Frutificação','Morte','Mudança de local','Divisão','Monitoramento','Determinação','Outro']};
 const STEPS=['Foto','Local','Quando e quem','Identificação','Origem','Destino','Revisão'];
 // Repetir somente o contexto. Identificação, quantidade, nº de coleta, fotos e observações são novos.

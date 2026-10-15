@@ -1,5 +1,5 @@
 /* Altere BUILD a cada publicação. Nunca apague caches de outros aplicativos. */
-const BUILD='2026-10-15.2';
+const BUILD='2026-10-15.4';
 const PREFIX='jbm-acervo:'+self.registration.scope+':';
 const CACHE=PREFIX+BUILD;
 const CORE=['./','index.html','styles.css','app.js','manifest.json'];
@@ -31,7 +31,7 @@ self.addEventListener('fetch',event=>{
   const core=CORE.slice(1).some(p=>path===new URL(p,self.registration.scope).href);
   if(core){event.respondWith(caches.open(CACHE).then(async c=>await c.match(path)||fetch(event.request)));return;}
   // Imagens locais opcionais: cache em segundo plano, mantendo o worker vivo.
-  if(!/\/icon-(180|192|512)\.png$/.test(url.pathname))return;
+  if(!/\/(icon-(180|192|512)\.png|fonts\/[\w.-]+\.woff2)$/.test(url.pathname))return;
   const update=caches.open(CACHE).then(async cache=>{
     const response=await fetch(event.request);
     if(response.ok)await cache.put(event.request,response.clone());return response;
