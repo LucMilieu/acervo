@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#C2262A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Acervo">
+<title>Acervo JBMB</title>
+<style>
+:root{--tinta:#1A1A1A;--tijolo:#C2262A;--tijolo2:#821818;--papel:#F5F0EA;--linha:#E2D8CE;--mudo:#6E625B;--claro:#ECE3D9}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.45 "Lettera Text","Silva Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding-top:env(safe-area-inset-top)}
+main{max-width:560px;margin:0 auto;padding:16px 18px 130px}
+h1{font-size:1.7rem;font-weight:700;line-height:1.05;letter-spacing:-.01em;color:var(--tijolo);margin:12px 0 4px}
+h2{font-size:1.4rem;font-weight:700;margin:6px 0 12px}
+label{display:block;font-size:.85rem;color:var(--mudo);margin:20px 0 6px}
+input,textarea{width:100%;font:inherit;padding:12px;border:1px solid var(--linha);border-radius:6px;background:#fff;color:var(--tinta)}
+textarea{min-height:90px}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--tijolo);outline-offset:1px}
+.btn{display:block;width:100%;font:inherit;font-weight:600;padding:14px;border-radius:6px;border:1px solid var(--tijolo);background:#fff;color:var(--tijolo);margin:8px 0;text-align:center;cursor:pointer}
+.btn.grande{background:var(--tijolo);color:#fff;padding:18px}
+.btn.sec{border-color:var(--linha);color:var(--tinta)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;padding:10px 14px;min-height:44px;border:1px solid var(--linha);border-radius:4px;background:#fff;color:var(--tinta)}
+.chip.on{background:var(--tijolo);border-color:var(--tijolo);color:#fff}
+.chips+input{margin-top:8px}
+.check{display:flex;gap:10px;align-items:center;color:var(--tinta);font-size:1rem}
+.check input{width:22px;height:22px;accent-color:var(--tijolo)}
+.dica{color:var(--mudo);font-size:.85rem;margin:4px 0}
+.status{padding:12px;background:var(--claro);border-radius:4px;margin:12px 0}
+.aviso{padding:12px;background:var(--claro);border-left:4px solid var(--tijolo)}
+.modulos{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:4px}
+.modulos i{height:12px;background:var(--linha)}.modulos i.f{background:var(--tijolo)}.modulos i.f:nth-child(2n){background:#A11C1D}.modulos i.f:nth-child(3n){background:#E1352F}.modulos i.a{background:var(--tijolo2)}
+.navbar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:var(--papel);border-top:1px solid var(--linha)}
+.navbar[hidden]{display:none}.navbar .btn{margin:0}
+.fotos{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.mini{position:relative;width:96px;height:96px}.mini img{width:100%;height:100%;object-fit:cover;border-radius:4px}
+.x{position:absolute;top:-8px;right:-8px;width:30px;height:30px;border-radius:50%;border:0;background:var(--tinta);color:#fff;font-size:1rem}
+.sug button,.item{display:block;width:100%;text-align:left;font:inherit;padding:12px;border:0;border-bottom:1px solid var(--linha);background:#fff;color:var(--tinta)}
+.item span{display:block;color:var(--mudo);font-size:.85rem}
+.qtd{display:flex;gap:8px}.qtd button{width:56px;font-size:1.4rem;border:1px solid var(--linha);background:#fff;border-radius:6px;color:var(--tinta)}.qtd input{text-align:center}
+.capa{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,46px);margin:-16px -18px 22px}
+.painel{grid-area:2/2/6/5;background:var(--papel);padding:16px;display:flex;flex-direction:column;justify-content:space-between}
+.marca{font-weight:700;font-size:1.05rem;line-height:1.15;margin:0}
+.titulo{font-weight:700;font-size:2rem;line-height:1;color:var(--tijolo);margin:0;letter-spacing:-.01em}
+input,textarea,.btn,.chip,.status,.qtd button,.mini img,#toast{border-radius:0}
+.link{background:none;border:0;color:var(--tijolo);font:inherit;text-decoration:underline;padding:10px 0;margin-right:18px}
+.campo{padding:10px 0;border-bottom:1px solid var(--linha)}.campo b{display:block;font-size:.8rem;color:var(--mudo);font-weight:500}
+.campo a{color:var(--tijolo);margin-right:12px}
+#toast{position:fixed;left:18px;right:18px;bottom:96px;max-width:524px;margin:auto;padding:14px;background:var(--tinta);color:#fff;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<main id="main"></main>
+<div id="nav" class="navbar" hidden></div>
+<div id="toast" role="status"></div>
+<script>
+const DEF={"Coletores":["Marcos de Freitas Mortara","Marcio de Melo Leodegario","Lucas Gonçalves Ferreira"],"Origem":["Silvestre","Cultivada de origem silvestre","Origem de cultivo","Desconhecida"],"Hábito":["Epífita","Rupícola","Terrícola","Hemiepífita","Outro"],"Material coletado":["Planta inteira","Muda","Semente","Estaca","Broto (keiki)","Outro"],"Local no JBM":["Viveiro de plantas","Estufa bromélias","Estufa aráceas","Outro"],"Habitat":["Floresta Ombrófila Densa","Floresta Ombrófila Mista","Floresta Estacional Semidecidual","Restinga","Campo de altitude / rupestre","Afloramento rochoso","Mata ciliar","Borda de mata","Área antropizada","Outro"],"Tipo de evento":["Floração","Frutificação","Morte","Mudança de local","Divisão","Monitoramento","Outro"]};
+const LEMBRAR=['lat','lng','alt','prec','endereco','local','habitat','habitatOutro','habito','habitoOutro','data','coletores','coletoresOutro','mesmoIdent','origem','destino','destinoOutro','material','materialOutro','substrato','substratoOutro'];
+const NOMES=['Foto','Local','Quando e quem','Identificação','Origem','Destino'];
+let D={listas:DEF,especies:[],acervo:{cab:[],linhas:[]}},R={},passo=0,modo='inicio',render=()=>{},SP=[],GEN={},ACV=[],DET='';
+const $=s=>document.querySelector(s),main=$('#main'),nav=$('#nav');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const cfg={get url(){return localStorage.url||''},get token(){return localStorage.token||''}};
+const L=n=>(D.listas&&D.listas[n]&&D.listas[n].length?D.listas[n]:DEF[n])||[];
+const Lo=n=>{const l=L(n);return l.includes('Outro')?l:[...l,'Outro']};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3500)}
+
+// ---- armazenamento local (IndexedDB) ----
+const DB=new Promise((ok,er)=>{const r=indexedDB.open('jbmb',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>er(r.error)});
+async function idb(m,fn){const db=await DB;return new Promise((ok,er)=>{const t=db.transaction('kv',m),q=fn(t.objectStore('kv'));t.oncomplete=()=>ok(q.result);t.onerror=()=>er(t.error)})}
+const get=k=>idb('readonly',s=>s.get(k)),set=(k,v)=>idb('readwrite',s=>s.put(v,k)),del=k=>idb('readwrite',s=>s.delete(k));
+const fila=async()=>(await idb('readonly',s=>s.getAllKeys())).filter(k=>String(k).startsWith('fila:'));
+
+// ---- dados da planilha ----
+function indexar(){const m=new Map();GEN={};
+ const add=(f,g,e)=>{g=(g||'').trim();if(!g)return;e=(e||'').trim();f=(f||'').trim();const k=(g+' '+e).toLowerCase().trim();if(!m.has(k))m.set(k,{f,g,e,k});if(f&&!GEN[g.toLowerCase()])GEN[g.toLowerCase()]=f};
+ (D.especies||[]).forEach(r=>add(r[0],r[1],r[2]));
+ const c=D.acervo.cab||[];ACV=(D.acervo.linhas||[]).map(l=>Object.fromEntries(c.map((h,i)=>[h,l[i]])));
+ ACV.forEach(o=>add(o['Família'],o['Gênero'],o['Epíteto']));SP=[...m.values()]}
+async function atualizarDados(sil){if(!cfg.url){if(!sil)toast('Informe o endereço da planilha em Configurações.');return false}
+ try{const r=await fetch(cfg.url+'?token='+encodeURIComponent(cfg.token)),j=await r.json();if(!j.ok)throw new Error(j.erro);
+  D={listas:j.listas,especies:j.especies,acervo:j.acervo};await set('dados',D);localStorage.atualizado=Date.now();indexar();if(!sil)toast('Dados atualizados.');return true}
+ catch(e){if(!sil)toast(navigator.onLine?'Não foi possível ler a planilha: '+e.message:'Sem internet. O app usa os dados já salvos no celular.');return false}}
+let enviando=false;
+async function sincronizar(){if(enviando||!cfg.url)return null;enviando=true;const enviados=[];let erro='';
+ try{for(const k of await fila()){const it=await get(k);let j;
+  try{j=await(await fetch(cfg.url,{method:'POST',body:JSON.stringify({token:cfg.token,tipo:it.tipo,dados:it.dados})})).json()}catch(e){erro='offline';break}
+  if(!j.ok){erro=j.erro;break}await del(k);enviados.push(j.registro)}}finally{enviando=false}
+ if(enviados.length)await atualizarDados(true);return{enviados,erro}}
+async function concluir(msg){const r=await sincronizar();
+ inicio(r&&r.enviados.length&&!r.erro?`${msg} e enviado: ${r.enviados.join(', ')}.`:r&&r.erro&&r.erro!=='offline'?`${msg} no celular. A planilha recusou o envio: ${r.erro}`:`${msg} no celular. Será enviado quando houver internet.`)}
+
+// ---- componentes ----
+function chips(c,ops,multi){const v=R[c];return '<div class="chips">'+ops.map(o=>{const on=multi?(v||[]).includes(o):v===o;return `<button type="button" class="chip${on?' on':''}" data-chip="${esc(c)}" data-v="${esc(o)}"${multi?' data-multi="1"':''}>${esc(o)}</button>`}).join('')+'</div>'}
+function outro(c){const v=R[c],on=Array.isArray(v)?v.includes('Outro'):v==='Outro';return on?`<input data-f="${c}Outro" placeholder="Qual?" value="${esc(R[c+'Outro'])}">`:''}
+const val=c=>R[c]==='Outro'?(R[c+'Outro']||'').trim():(R[c]||'');
+const coletores=()=>(R.coletores||[]).map(x=>x==='Outro'?(R.coletoresOutro||'').trim():x).filter(Boolean);
+const fotosHTML=()=>`<div class="fotos">${R.fotos.map((f,i)=>`<div class="mini"><img src="${f}" alt="Foto ${i+1}"><button class="x" data-rmfoto="${i}" aria-label="Remover foto">×</button></div>`).join('')}</div>
+<label class="btn grande">Tirar foto<input type="file" accept="image/*" capture="environment" data-foto hidden></label>
+<label class="btn sec">Escolher da galeria<input type="file" accept="image/*" multiple data-foto hidden></label>`;
+const dataHTML=()=>`<div class="chips"><button type="button" class="chip${R.data===hoje()?' on':''}" data-acao="hoje">Hoje</button></div><input type="date" data-f="data" value="${R.data}">`;
+const nome=o=>o['Espécie']||[o['Gênero'],o['Epíteto']].filter(Boolean).join(' ')||o['Família']||'Não identificada';
+const voltar=()=>'<button class="link" data-ir="inicio">Início</button>';
+function comprimir(file){return new Promise((ok,er)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.75))};img.onerror=er;img.src=u})}
+function parseCoord(t){t=(t||'').replace(/[−–]/g,'-').trim();let lat,lng;const n=x=>parseFloat(String(x||0).replace(',','.'));
+ const dms=[...t.matchAll(/(\d+(?:[.,]\d+)?)\s*°\s*(?:(\d+(?:[.,]\d+)?)\s*['′’]\s*)?(?:(\d+(?:[.,]\d+)?)\s*(?:["″”]|'')\s*)?([NSEWLO])/gi)];
+ if(dms.length>=2){const v=dms.slice(0,2).map(m=>({x:(n(m[1])+n(m[2])/60+n(m[3])/3600)*(/[SWO]/i.test(m[4])?-1:1),ns:/[NS]/i.test(m[4])}));const a=v[0].ns?v:[v[1],v[0]];lat=a[0].x;lng=a[1].x}
+ else{const m=t.match(/(-?\d+\.\d+)\s*[,;\s]\s*(-?\d+\.\d+)/)||t.match(/(-?\d+,\d+)\s*[;\s]\s*(-?\d+,\d+)/);if(m){lat=n(m[1]);lng=n(m[2])}}
+ return lat!=null&&!isNaN(lat)&&Math.abs(lat)<=90&&Math.abs(lng)<=180?{lat,lng}:null}
+
+// ---- telas ----
+const MOS=[[1,1,2,2,'#E1352F'],[1,2,2,4,'#821818'],[1,4,2,5,'#C2262A'],[1,5,2,6,'#D0C7BF'],[1,6,2,7,'#821818'],[2,1,4,2,'#A3352A'],[4,1,6,2,'#821818'],[2,5,3,6,'#A11C1D'],[2,6,4,7,'#C2262A'],[3,5,5,6,'#E1352F'],[4,6,5,7,'#A3352A'],[5,5,6,7,'#A11C1D'],[6,1,7,2,'#E1352F'],[6,2,7,3,'#C2262A'],[6,3,7,5,'#A3352A'],[6,5,7,6,'#821818'],[6,6,7,7,'#F5F0EA']].map(([a,b,c,d,k])=>`<i style="grid-area:${a}/${b}/${c}/${d};background:${k}"></i>`).join('');
+async function inicio(msg){modo='inicio';render=()=>{};nav.hidden=true;const n=(await fila()).length;
+ const at=localStorage.atualizado?new Date(+localStorage.atualizado).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'';
+ main.innerHTML=`<div class="capa">${MOS}<div class="painel"><p class="marca">Jardim<br>Botânico<br>Mborayhu</p><p class="titulo">acervo<br>vivo</p></div></div>
+ ${msg?`<p class="aviso">${esc(msg)}</p>`:''}${!cfg.url?'<p class="aviso">Antes de começar, informe o endereço da planilha em Configurações.</p>':''}
+ <button class="btn grande" data-ir="novo">Novo acesso</button><button class="btn" data-ir="evento">Registrar evento</button><button class="btn" data-ir="consulta">Consultar acervo</button>
+ ${n?`<button class="btn sec" data-ir="enviar">Enviar ${n} ${n>1?'registros pendentes':'registro pendente'}</button>`:''}
+ <p class="dica">${n?'':'Nenhum registro pendente. '}${at?'Dados da planilha de '+at+'.':''}</p>
+ <button class="link" data-ir="atualizar">Atualizar dados</button><button class="link" data-ir="config">Configurações</button>`;scrollTo(0,0)}
+
+function novo(){let u={};try{u=JSON.parse(localStorage.ultimo||'{}')}catch(e){}
+ R={uid:uid(),fotos:[],lat:null,lng:null,alt:null,prec:null,endereco:'',local:'',habitat:'',habito:'',data:hoje(),coletores:[],nColeta:'',mesmoIdent:true,naoIdent:false,familia:'',genero:'',epiteto:'',ssp:'',determinador:'',origem:'',doacao:'Não',doador:'',destino:'',material:'',qtd:1,substrato:'',obs:''};
+ if(u.t&&Date.now()-u.t<3*3600e3){LEMBRAR.forEach(k=>{if(u[k]!==undefined)R[k]=u[k]});R.locAnterior=R.lat!=null}
+ passo=0;modo='novo';render=renderPasso;render();scrollTo(0,0)}
+const PASSOS=[
+()=>`<h2>Foto</h2><p class="dica">Fotografe a planta. Pode tirar mais de uma ou pular.</p>${fotosHTML()}`,
+()=>{const st=R.lat!=null?`Coordenada: ${R.lat.toFixed(5)}, ${R.lng.toFixed(5)}${R.prec?` (precisão de ${Math.round(R.prec)} m)`:''}${R.locAnterior?' (do registro anterior)':''}`:R.endereco?'Endereço informado':'Nenhuma localização ainda';
+ return `<h2>Onde foi coletada</h2><button class="btn grande" data-acao="gps">Usar minha posição</button><button class="btn sec" data-acao="colar">Colar coordenada</button><button class="btn sec" data-acao="end">Digitar endereço</button>
+ ${R.modoLoc==='colar'?`<input data-f="coordTxt" placeholder="-23.8123, -46.7231" value="${esc(R.coordTxt)}" autocapitalize="none"><button class="btn" data-acao="lercoord">Usar esta coordenada</button>`:''}
+ ${R.modoLoc==='end'?`<input data-f="endereco" placeholder="Rua, bairro, cidade" value="${esc(R.endereco)}"><p class="dica">O endereço é localizado no mapa quando o registro for enviado.</p>`:''}
+ <p class="status" id="locstatus">${esc(st)}</p>
+ <label>Descrição do local</label><input data-f="local" value="${esc(R.local)}" placeholder="Ex.: trilha principal, beira do córrego">
+ <label>Habitat</label>${chips('habitat',Lo('Habitat'))}${outro('habitat')}
+ <label>Hábito</label>${chips('habito',Lo('Hábito'))}${outro('habito')}`},
+()=>`<h2>Quando e quem</h2><label>Data da coleta</label>${dataHTML()}
+ <label>Quem coletou</label>${chips('coletores',Lo('Coletores'),true)}${outro('coletores')}
+ <label>Nº de coleta</label><input data-f="nColeta" value="${esc(R.nColeta)}">
+ <label class="check"><input type="checkbox" data-f="mesmoIdent"${R.mesmoIdent?' checked':''}> Quem coletou também identificou</label>`,
+()=>`<h2>Identificação</h2><label class="check"><input type="checkbox" data-f="naoIdent"${R.naoIdent?' checked':''}> Não identificada</label>
+ ${R.naoIdent?'':`<label>Buscar espécie</label><input id="busca" placeholder="Digite o gênero ou o epíteto" autocomplete="off" autocapitalize="none"><div id="sug" class="sug"></div>
+ <label>Família</label><input data-f="familia" value="${esc(R.familia)}">
+ <label>Gênero</label><input data-f="genero" value="${esc(R.genero)}">
+ <label>Epíteto</label><input data-f="epiteto" value="${esc(R.epiteto)}" autocapitalize="none">
+ <label>Subespécie ou variedade</label><input data-f="ssp" value="${esc(R.ssp)}" autocapitalize="none">
+ <p class="dica">Preencha só o que souber.</p>
+ ${R.mesmoIdent?'':`<label>Quem identificou</label>${chips('determinador',Lo('Coletores'))}${outro('determinador')}`}`}`,
+()=>`<h2>Origem</h2><label>Procedência</label>${chips('origem',L('Origem'))}
+ <label>É doação?</label>${chips('doacao',['Sim','Não'])}${R.doacao==='Sim'?`<label>Nome do doador</label><input data-f="doador" value="${esc(R.doador)}">`:''}`,
+()=>`<h2>Destino no jardim</h2>${chips('destino',Lo('Local no JBM'))}${outro('destino')}
+ <label>Material coletado</label>${chips('material',Lo('Material coletado'))}${outro('material')}
+ <label>Quantidade</label><div class="qtd"><button type="button" data-acao="menos" aria-label="Menos">−</button><input type="number" min="1" data-f="qtd" value="${R.qtd}" inputmode="numeric"><button type="button" data-acao="mais" aria-label="Mais">+</button></div>
+ <label>Recipiente ou substrato</label>${L('Recipiente/Substrato').length?chips('substrato',Lo('Recipiente/Substrato'))+outro('substrato'):`<input data-f="substrato" value="${esc(R.substrato)}">`}
+ <label>Observações</label><textarea data-f="obs">${esc(R.obs)}</textarea>`];
+function renderPasso(){main.innerHTML=`<div class="modulos">${NOMES.map((n,i)=>`<i class="${i<passo?'f':i===passo?'a':''}"></i>`).join('')}</div><p class="dica">${passo+1} de 6</p>${PASSOS[passo]()}`;
+ nav.innerHTML=`<button class="btn sec" data-acao="voltar">${passo?'Voltar':'Cancelar'}</button><button class="btn grande" data-acao="avancar">${passo<5?'Avançar':'Salvar acesso'}</button>`;nav.hidden=false}
+async function salvarAcesso(){
+ if(!R.data)return toast('Informe a data da coleta.');
+ if(!val('destino')){passo=5;render();return toast('Escolha o destino no jardim.')}
+ if(!R.fotos.length&&R.lat==null&&!R.endereco)return toast('Registre uma foto ou a localização.');
+ const col=coletores(),temId=!R.naoIdent&&!!(R.familia||R.genero),id=f=>temId?(R[f]||'').trim():'';
+ const dados={uid:R.uid,data:R.data,detData:temId?(R.mesmoIdent?R.data:hoje()):'',lat:R.lat,lng:R.lng,alt:R.alt,endereco:R.lat==null?R.endereco:'',fotos:R.fotos,campos:{
+  'Família':id('familia'),'Gênero':id('genero'),'Epíteto':id('epiteto'),'SSP/VAR':id('ssp'),'Local':R.local,'Qtd. coletada':R.qtd,'Hábito':val('habito'),'Material coletado':val('material'),
+  'N. de coleta':R.nColeta,'Coletores':col.join('; '),'Origem':val('origem'),'Habitat':val('habitat'),'Observações':R.obs,'Recipiente/Substrato':val('substrato'),'Local no JBM':val('destino'),
+  'Doação':R.doacao,'Doador':R.doacao==='Sim'?R.doador:'','Determinação':temId?(R.mesmoIdent?(col[0]||''):val('determinador')):''}};
+ await set('fila:'+R.uid,{tipo:'acesso',dados});
+ const u={t:Date.now()};LEMBRAR.forEach(k=>u[k]=R[k]);localStorage.ultimo=JSON.stringify(u);
+ nav.hidden=true;main.innerHTML='<p class="status">Salvando…</p>';concluir('Acesso salvo')}
+
+function evento(reg){R={uid:uid(),registro:reg||'',tipo:'',data:hoje(),responsavel:'',nota:'',fotos:[]};modo='evento';render=renderEvento;render();scrollTo(0,0)}
+function renderEvento(){const o=ACV.find(x=>x['Registro']===R.registro);
+ main.innerHTML=`<h1>Registrar evento</h1><label>Planta</label>${R.registro?`<div class="status"><b>${esc(R.registro)}</b> <i>${esc(o?nome(o):'')}</i><br><button class="link" data-acao="trocarReg">Trocar planta</button></div>`:`<input id="buscaReg" placeholder="Registro ou espécie" autocomplete="off" autocapitalize="none"><div id="sugReg" class="sug"></div>`}
+ <label>O que aconteceu</label>${chips('tipo',Lo('Tipo de evento'))}${outro('tipo')}
+ <label>Data</label>${dataHTML()}
+ <label>Responsável</label>${chips('responsavel',Lo('Coletores'))}${outro('responsavel')}
+ <label>Nota</label><textarea data-f="nota">${esc(R.nota)}</textarea><label>Foto (opcional)</label>${fotosHTML()}`;
+ nav.innerHTML='<button class="btn sec" data-ir="inicio">Cancelar</button><button class="btn grande" data-acao="salvarEvento">Salvar evento</button>';nav.hidden=false}
+
+function consulta(){modo='consulta';render=()=>{};nav.hidden=true;main.innerHTML=`${voltar()}<h1>Acervo</h1><input id="q" placeholder="Registro, espécie, família ou local" autocomplete="off" autocapitalize="none"><p class="dica" id="qtdq"></p><div id="lista" class="sug"></div>`;filtrar('');scrollTo(0,0)}
+function filtrar(q){q=q.trim().toLowerCase();const r=[];ACV.forEach((o,i)=>{if(!q||[o['Registro'],nome(o),o['Família'],o['Local no JBM'],o['Nome Popular']].join(' ').toLowerCase().includes(q))r.push(i)});
+ $('#qtdq').textContent=ACV.length?`${r.length} de ${ACV.length} plantas`:'Nenhuma planta carregada. Use Atualizar dados na tela inicial.';
+ $('#lista').innerHTML=r.reverse().slice(0,150).map(i=>{const o=ACV[i];return `<button class="item" data-det="${i}"><b>${esc(o['Registro'])}</b> <i>${esc(nome(o))}</i><span>${esc([o['Família'],o['Local no JBM']].filter(Boolean).join(', '))}</span></button>`}).join('')}
+function detalhe(i){const o=ACV[i];DET=o['Registro'];modo='detalhe';
+ main.innerHTML=`<button class="link" data-ir="consulta">Voltar à lista</button><h1><i>${esc(nome(o))}</i></h1><p class="dica">${esc(o['Registro'])}</p>
+ ${D.acervo.cab.filter(h=>o[h]&&!['Registro','Espécie'].includes(h)).map(h=>`<div class="campo"><b>${esc(h)}</b>${h==='Registro fotográfico'?o[h].split('|').map(s=>s.trim()).filter(s=>/^https?:/.test(s)).map((s,j)=>`<a href="${esc(s)}" target="_blank" rel="noopener">Foto ${j+1}</a>`).join(''):esc(o[h])}</div>`).join('')}
+ <button class="btn grande" data-acao="eventoDet">Registrar evento nesta planta</button>`;scrollTo(0,0)}
+function config(){modo='config';render=()=>{};nav.hidden=true;main.innerHTML=`${voltar()}<h1>Configurações</h1>
+ <label>Endereço do script da planilha</label><input id="cfgUrl" value="${esc(cfg.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocapitalize="none">
+ <label>Código de acesso</label><input id="cfgTok" value="${esc(cfg.token)}" autocapitalize="none"><button class="btn grande" data-acao="salvarCfg">Salvar e testar</button>`}
+
+// ---- ações ----
+const IR={inicio:()=>inicio(),novo,evento:()=>evento(''),consulta,config,
+ enviar:async()=>{toast('Enviando…');const r=await sincronizar();inicio(!r?'':r.erro==='offline'?'Sem internet. Os registros continuam salvos no celular.':r.erro?'A planilha recusou o envio: '+r.erro:'Enviado: '+r.enviados.join(', ')+'.')},
+ atualizar:async()=>{if(await atualizarDados())inicio()}};
+const ACOES={
+ voltar(){if(passo){passo--;render();scrollTo(0,0)}else if(confirm('Descartar este registro?'))inicio()},
+ avancar(){if(passo<5){passo++;render();scrollTo(0,0)}else salvarAcesso()},
+ gps(){if(!navigator.geolocation)return toast('Este aparelho não fornece posição.');R.modoLoc='';$('#locstatus').textContent='Buscando posição…';
+  navigator.geolocation.getCurrentPosition(p=>{Object.assign(R,{lat:p.coords.latitude,lng:p.coords.longitude,alt:p.coords.altitude,prec:p.coords.accuracy,endereco:'',locAnterior:false});if(modo==='novo'&&passo===1)render()},
+  e=>{toast(e.code===1?'Permita o acesso à localização nos ajustes do navegador.':'Não foi possível obter a posição. Tente de novo ou cole a coordenada.');if(modo==='novo'&&passo===1)render()},{enableHighAccuracy:true,timeout:30000,maximumAge:0})},
+ colar(){R.modoLoc='colar';render();if(navigator.clipboard&&navigator.clipboard.readText)navigator.clipboard.readText().then(t=>{if(parseCoord(t)){R.coordTxt=t;render()}}).catch(()=>{})},
+ lercoord(){const p=parseCoord(R.coordTxt);if(!p)return toast('Coordenada não reconhecida. Use o formato -23.8123, -46.7231.');Object.assign(R,p,{alt:null,prec:null,endereco:'',modoLoc:'',locAnterior:false});render()},
+ end(){Object.assign(R,{modoLoc:'end',lat:null,lng:null,alt:null,prec:null,locAnterior:false});render()},
+ hoje(){R.data=hoje();render()},
+ menos(){R.qtd=Math.max(1,(+R.qtd||1)-1);render()},mais(){R.qtd=(+R.qtd||0)+1;render()},
+ trocarReg(){R.registro='';render()},eventoDet(){evento(DET)},
+ async salvarEvento(){if(!R.registro)return toast('Escolha a planta.');if(!val('tipo'))return toast('Escolha o que aconteceu.');
+  await set('fila:'+R.uid,{tipo:'evento',dados:{uid:R.uid,registro:R.registro,data:R.data,tipo:val('tipo'),responsavel:val('responsavel'),nota:R.nota,fotos:R.fotos}});
+  nav.hidden=true;main.innerHTML='<p class="status">Salvando…</p>';concluir('Evento salvo')},
+ async salvarCfg(){localStorage.url=$('#cfgUrl').value.trim();localStorage.token=$('#cfgTok').value.trim();if(await atualizarDados())inicio('Conectado à planilha.')}};
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
+ if(d.chip){const c=d.chip,v=d.v;if(d.multi){const a=R[c]||[];R[c]=a.includes(v)?a.filter(x=>x!==v):[...a,v]}else R[c]=R[c]===v?'':v;render();return}
+ if(d.acao&&ACOES[d.acao])return ACOES[d.acao]();
+ if(d.ir&&IR[d.ir])return IR[d.ir]();
+ if(d.rmfoto!==undefined){R.fotos.splice(+d.rmfoto,1);render();return}
+ if(d.sp!==undefined){const s=SP[+d.sp];Object.assign(R,{familia:s.f||GEN[s.g.toLowerCase()]||'',genero:s.g,epiteto:s.e});render();return}
+ if(d.reg!==undefined){R.registro=d.reg;render();return}
+ if(d.det!==undefined)detalhe(+d.det)});
+document.addEventListener('input',e=>{const t=e.target;
+ if(t.id==='busca'){const q=t.value.trim().toLowerCase(),r=[];if(q.length>=2)for(let i=0;i<SP.length&&r.length<8;i++)if(SP[i].k.startsWith(q)||SP[i].e.toLowerCase().startsWith(q))r.push(i);
+  $('#sug').innerHTML=q.length<2?'':r.map(i=>`<button type="button" data-sp="${i}"><i>${esc(SP[i].g+' '+SP[i].e)}</i> <span class="dica">${esc(SP[i].f)}</span></button>`).join('')||'<p class="dica">Nenhuma espécie na lista. Preencha os campos abaixo.</p>';return}
+ if(t.id==='q')return filtrar(t.value);
+ if(t.id==='buscaReg'){const q=t.value.trim().toLowerCase();$('#sugReg').innerHTML=q.length<2?'':ACV.filter(o=>(o['Registro']+' '+nome(o)).toLowerCase().includes(q)).slice(0,8).map(o=>`<button type="button" data-reg="${esc(o['Registro'])}"><b>${esc(o['Registro'])}</b> <i>${esc(nome(o))}</i></button>`).join('')||'<p class="dica">Nenhuma planta encontrada.</p>';return}
+ if(t.dataset.f&&t.type!=='checkbox')R[t.dataset.f]=t.type==='number'?+t.value:t.value});
+document.addEventListener('change',async e=>{const t=e.target;
+ if(t.dataset.f&&t.type==='checkbox'){R[t.dataset.f]=t.checked;render();return}
+ if(t.dataset.f==='genero'&&!R.familia){const f=GEN[t.value.trim().toLowerCase()];if(f){R.familia=f;render()}}
+ if(t.dataset.f==='data')render();
+ if(t.hasAttribute('data-foto')){for(const f of t.files){try{R.fotos.push(await comprimir(f))}catch(_){toast('Não foi possível ler a foto.')}}render()}});
+
+// ---- início ----
+(async()=>{try{const c=await get('dados');if(c)D=c}catch(e){}indexar();inicio();
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+ if(navigator.onLine&&cfg.url){await sincronizar();await atualizarDados(true);if(modo==='inicio')inicio()}})();
+addEventListener('online',async()=>{await sincronizar();if(modo==='inicio')inicio()});
+</script>
+</body>
+</html>
